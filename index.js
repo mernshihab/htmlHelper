@@ -13,7 +13,7 @@ const fs = require("fs/promises");
     try {
       await fs.access(indexPath);
     } catch (e) {
-      const initialContent = `
+      const initialSkeleton = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -25,7 +25,7 @@ const fs = require("fs/promises");
       <body class="bg-gray-100">
       </body>
       </html>`;
-      await fs.writeFile(indexPath, initialContent, "utf-8");
+      await fs.writeFile(indexPath, initialSkeleton, "utf-8");
     }
   };
 
@@ -323,12 +323,12 @@ const fs = require("fs/promises");
     await appendToBody(footerHTML);
   };
 
-  const commandFileHandler = await fs.open("./command.txt", "r");
+  const commandHandler = await fs.open("./command.txt", "r");
 
-  commandFileHandler.on("change", async () => {
-    const size = (await commandFileHandler.stat()).size;
+  commandHandler.on("change", async () => {
+    const size = (await commandHandler.stat()).size;
     const buff = Buffer.alloc(size);
-    await commandFileHandler.read(buff, 0, size, 0);
+    await commandHandler.read(buff, 0, size, 0);
     const command = buff.toString("utf-8").trim();
 
     await initializeHTMLFile();
@@ -349,7 +349,7 @@ const fs = require("fs/promises");
   const watcher = fs.watch("./command.txt");
   for await (const event of watcher) {
     if (event.eventType === "change") {
-      commandFileHandler.emit("change");
+      commandHandler.emit("change");
     }
   }
 })();
